@@ -89,12 +89,12 @@ class dirParser(object):
 		return md_list
 
 
-base_path = "E:\\test\\test\\flask-blog\\app\\"
+base_path = "/root/flask-blog/app/"
 
 @app.route('/')
 @app.route('/index')
 def index():
-	mds = dirParser(base_path+"\\static\\posts")
+	mds = dirParser(base_path+"/static/posts")
 	posts = []
 	for md in mds.file_list:
 		posts.append(md.info)
@@ -104,7 +104,7 @@ def index():
 
 @app.route('/post/<file_name>')
 def post(file_name):
-	md = mdParser(open(base_path+"\\static\\posts\\"+file_name))
+	md = mdParser(open(base_path+"/static/posts/"+file_name))
 	renderer = HighlightRenderer()
 	markdown = mistune.Markdown(renderer=renderer)
 	text = markdown(md.text)
