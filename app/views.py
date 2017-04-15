@@ -84,7 +84,7 @@ class dirParser(object):
 		md_list = []
 		ff = self.getFiles(path)
 		for f in ff:
-			md_list.append(mdParser(open(path+"\\"+f)))
+			md_list.append(mdParser(open(path+"/"+f)))
 			md_list[-1].info['file_name'] = f
 		return md_list
 
