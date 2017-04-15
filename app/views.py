@@ -98,8 +98,6 @@ def index():
 	posts = []
 	for md in mds.file_list:
 		posts.append(md.info)
-	for i in posts:
-		print i['title']
 	return render_template("index.html",posts=posts[::-1])
 
 @app.route('/post/<file_name>')
