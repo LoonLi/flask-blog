@@ -1,2 +1,2 @@
 # flask-blog
-A blog based in flask and bootstrap.
+A blog based on flask and bootstrap.
