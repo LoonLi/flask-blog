@@ -105,6 +105,21 @@
 
     <hr>
 
+    <!-- Pages -->
+    <div class="container">
+        <div class="row">
+        <div class="col-lg-5 col-lg-offset-5 col-md-10 col-md-offset-1">
+        <ul class="pagination">
+            <li><a href="\index\{{ pages.pre }}">&laquo;</a></li>
+            {% for i in pages.count %}
+            <li {% if i == pages.page %} class="disabled" {% endif %}><a href="\index\{{ i }}">{{ i }}</a></li>
+            {% endfor %}
+            <li><a href="\index\{{ pages.next }}">&raquo;</a></li>
+        </ul>
+        </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -136,7 +151,7 @@
                             </a>
                         </li>
                     </ul>
-                    <p class="copyright text-muted">民风淳朴亚楠村，热情好客不死镇</p>
+                    <p class="copyright text-muted">民风淳朴不死街，热情好客亚楠村</p>
                 </div>
             </div>
         </div>

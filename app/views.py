@@ -76,6 +76,7 @@ class dirParser(object):
 	"""Get all markdowns and their infomation from a dir."""
 	def __init__(self, path):
 		self.file_list = self.getMds(path)
+		self.pages = (len(self.file_list)/10)+1
 
 	def getFiles(self,path):
 		return [ f for f in listdir(path) if isfile(join(path,f)) ]
@@ -93,12 +94,31 @@ base_path = "/root/flask-blog/app/"
 
 @app.route('/')
 @app.route('/index')
-def index():
+@app.route('/index/<int:page>')
+def index(page=1):
 	mds = dirParser(base_path+"/static/posts")
 	posts = []
 	for md in mds.file_list:
 		posts.append(md.info)
-	return render_template("index.html",posts=posts[::-1])
+	pages = {}
+	if page < 1:
+		page = 1
+	if page > mds.pages:
+		page = mds.pages
+	if mds.pages > 5 and page > 4:
+		if (page+2)>mds.pages:
+			result = range(mds.pages-4,mds.pages+1)
+		else:
+			result = [x for x in range(mds.pages) if x > page-3 or x < page+3]
+	else:
+		result = range(1,mds.pages+1)
+	pages['count'] = result
+	pages['pre'] = page-1
+	pages['next'] = page+1
+	pages['page'] = page
+	posts = posts[::-1]
+	posts = posts[10*(page-1):10*page]
+	return render_template("index.html",posts=posts,pages=pages)
 
 @app.route('/post/<file_name>')
 def post(file_name):

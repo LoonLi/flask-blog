@@ -3,6 +3,7 @@ layout: post
 title:  "git使用总结（二）——远程与分支"
 date:   2016-11-16 11:49:45 +0200
 categories: tools,git
+published: true
 ---
 	最近研究了一下git的用法。我看的教程来自[Git权威指南](http://www.worldhello.net/gotgit)，这里做个总结。
 
