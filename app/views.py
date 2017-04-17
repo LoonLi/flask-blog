@@ -100,6 +100,7 @@ def index(page=1):
 	posts = []
 	for md in mds.file_list:
 		posts.append(md.info)
+	posts = sorted(posts,key=lambda l:l['file_name'])
 	pages = {}
 	if page < 1:
 		page = 1
