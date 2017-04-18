@@ -130,7 +130,7 @@ def index(page=1,tag=None):
 	pages['page'] = page
 	posts = posts[::-1]
 	posts = posts[10*(page-1):10*page]
-	return render_template("index.html",posts=posts,pages=pages)
+	return render_template("index.html",posts=posts,pages=pages,tag=tag)
 
 @app.route('/post/<file_name>')
 def post(file_name):
