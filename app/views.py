@@ -95,11 +95,22 @@ base_path = "/root/flask-blog/app/"
 @app.route('/')
 @app.route('/index')
 @app.route('/index/<int:page>')
-def index(page=1):
+@app.route('/tag/<tag>')
+@app.route('/tag/<tag>/<int:page>')
+def index(page=1,tag=None):
 	mds = dirParser(base_path+"/static/posts")
 	posts = []
 	for md in mds.file_list:
 		posts.append(md.info)
+	if tag:
+		new_posts = []
+		count = 0
+		for p in posts:
+			if tag in p['categories']:
+				new_posts.append(p)
+				count+=1
+		posts = new_posts
+		mds.pages = (count/10)+1
 	posts = sorted(posts,key=lambda l:l['file_name'])
 	pages = {}
 	if page < 1:

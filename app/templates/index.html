@@ -94,7 +94,7 @@
                             {{ post.first_line }}
                         </h3>
                     </a>
-                    <p class="post-meta">Posted by <a href="#">Loon</a> on {{ post.date.month }}-{{ post.date.day }}-{{ post.date.year }}</p>
+                    <p class="post-meta">Posted by <a href="#">Loon</a> on {{ post.date.month }}-{{ post.date.day }}-{{ post.date.year }} about {% for i in post.categories %}<a href="/tag/{{ i }}">{{ i }}</a>  {% endfor %}</p>
                 </div>
                 <hr>
                 {% endif %}
@@ -106,19 +106,36 @@
     <hr>
 
     <!-- Pages -->
+    {% if tag==None %}
     <div class="container">
         <div class="row">
         <div class="col-lg-5 col-lg-offset-5 col-md-10 col-md-offset-1">
         <ul class="pagination">
-            <li><a href="\index\{{ pages.pre }}">&laquo;</a></li>
+            <li><a href="/index/{{ pages.pre }}">&laquo;</a></li>
             {% for i in pages.count %}
-            <li {% if i == pages.page %} class="disabled" {% endif %}><a href="\index\{{ i }}">{{ i }}</a></li>
+            <li {% if i == pages.page %} class="disabled" {% endif %}><a href="/index/{{ i }}">{{ i }}</a></li>
             {% endfor %}
-            <li><a href="\index\{{ pages.next }}">&raquo;</a></li>
+            <li><a href="/index/{{ pages.next }}">&raquo;</a></li>
         </ul>
         </div>
         </div>
     </div>
+    {% endif %}
+    {% if tag!=None %}
+    <div class="container">
+        <div class="row">
+        <div class="col-lg-5 col-lg-offset-5 col-md-10 col-md-offset-1">
+        <ul class="pagination">
+            <li><a href="/tag/{{ tag }}/{{ pages.pre }}">&laquo;</a></li>
+            {% for i in pages.count %}
+            <li {% if i == pages.page %} class="disabled" {% endif %}><a href="/tag/{{ tag }}/{{ i }}">{{ i }}</a></li>
+            {% endfor %}
+            <li><a href="/tag/{{ tag }}/{{ pages.next }}">&raquo;</a></li>
+        </ul>
+        </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Footer -->
     <footer>
