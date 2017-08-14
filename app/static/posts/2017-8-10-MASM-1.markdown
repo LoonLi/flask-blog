@@ -1,0 +1,122 @@
+---
+layout: post
+title:  "masm编程（1） —— 环境配置"
+date:   2017-08-10 11:49:45 +0200
+categories: masm
+published: true
+---
+       开始了对masm的学习。
+
+## 0x00 环境配置
+
+首先需要在masm的官网中下载masm32的安装包，然后安装。（为了避免出现兼容问题，我选择windowsXP环境中安装）
+
+然后在环境变量path中加入bin的地址。include中加入include的路径。lib中加入lib的路径。
+
+大功告成。
+
+## 0x01 编译命令
+
+为了方便编译，我们选择使用VC++中的nmake工具。当目录中存在makefile文件时，在含有*.asm的文件时，直接使用nmake命令即可完成编译，但需要在makefile中做好配置。
+
+<br/>
+
+![0](http://ofnd3snod.bkt.clouddn.com/blog/asm/environment/0.png)
+
+<br/>
+
+![1](http://ofnd3snod.bkt.clouddn.com/blog/asm/environment/1.png)
+
+
+<br/>
+
+![2](http://ofnd3snod.bkt.clouddn.com/blog/asm/environment/2.png)
+
+在对makefile文件语法进行说明之前，先对ml和link命令进行说明。
+
+
+### 0) ml
+
+ml 是 make and link 的缩写，单我们常常只使用它的make功能。常用的选项如下：
+
+```
+/c      仅进行编译，不自动进行链接
+/coff   产生的obj文件格式为COFF格式
+/Cp     源代码区分大小写
+/Gz     函数调用类型用StdCall形式
+```
+
+需要注意的是选项必须在源文件名前，否则会被忽略。比如:
+
+```
+ml /c /coff /Cp Test.asm #正确用法
+ml /c /coff Test.asm /Cp #错误用法
+```
+
+### 1) link
+
+link用于将obj文件链接成exe文件。这个的选项比较多了，到用的时候再做说明，现在先记住：
+
+```
+/subsystem:系统名    指定程序运行的操作系统
+```
+
+那么链接一个普通PE文件的命令就是：
+
+```
+link /subsystem:windows xx.obj yy.lib zz.res
+```
+
+### 2) nmake
+
+nmake 主要需要注意的就是makefile中的配置，拿刚刚简单的hello.asm的makefile文件作为例子：
+
+```
+NAME = Hello          #指定输出文件
+OBJS = $(NAME).obj    #指定目标文件
+                      #可能会需要RES来指定资源文件
+LINK_FLAG = /subsystem:windows    #link选项
+ML_FLAG = /c /coff                #ml选项
+
+#定义依赖关系和执行命令
+$(NAME).exe: $(OBJS)
+       Link $(LINK_FLAG) $(OBJS)
+.asm.obj:
+       ml $(ML_FLAG) $<
+
+clean:  #删除目标文件
+       del *.obj
+```
+
+__ 宏定义 __ 定义时直接使用 ` XXX = AAA ` 的方式就可以定义。引用的时候需要加上\$ 和括号。
+
+稍微难以理解的是一下的两种语法：
+
+__ 显示规则 __ 是这样的一种语法：
+
+```
+目标文件：依赖文件；命令
+或
+目标文件：依赖文件
+  命令
+```
+
+对于大量文件的操作，可以使用 __ 隐含规则 __ 
+
+```
+.源扩展名.目标扩展名: ; 命令
+或
+.源扩展名.目标扩展名:
+  命令
+```
+
+并且有几个特殊的宏可以配合使用：
+
+```
+$@ —— 全路径的目标文件
+$* —— 除去扩展名的全路径的目标文件
+$? —— 所有源文件名
+$< —— 源文件名
+```
+
+特别需要注意的是，所有规则中，第一条规则会成为最终生成的文件，它的依赖文件将在下面的规则中寻找。

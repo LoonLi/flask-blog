@@ -1,0 +1,261 @@
+---
+layout: post
+title:  "masm编程（2） —— 基础语法"
+date:   2017-08-11 11:49:45 +0200
+categories: masm
+published: true
+---
+       开始了对masm的学习。
+
+## 0x00 程序实例
+
+简单地先上个例子：
+
+```
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        .386
+        .model flat,stdcall
+        option casemap:none
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; Include 文件定义
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+include     windows.inc
+include     user32.inc
+includelib  user32.lib
+include     kernel32.inc
+includelib  kernel32.lib
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; 数据段
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        .data
+
+szCaption   db  'A MessageBox !',0
+szText      db  'Hello, World !',0
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; 代码段
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        .code
+start:
+        invoke  MessageBox,NULL,offset szText,offset szCaption,MB_OK
+        invoke  ExitProcess,NULL
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        end start
+```
+
+## 0x01 模式定义
+
+首先注意到代码开头的语句： 
+
+```
+    .386
+    .model flat,stdcall
+    option casemap:none
+```
+
+这些指令定义了程序使用的指令集，工作模式和格式。其中 `.386` 表示工作环境是80386及以上的处理机； `.model flat,stdcall` 表示使用平坦模式，系统调用是stdcall格式； `option casemap:none` 表示区分大小写。 
+
+## 0x02 段
+
+段使用 `.段名` 的方式定义，一般来说需要定义的段有数据段，和代码段。堆栈段在DOS环境的汇编中是需要定义的，但在win32环境中则不需要，因为系统提供了该段。
+
+## 0x03 程序结束与入口
+
+win32汇编并没有main函数的定义，但需要在结束时写语句 `end [入口点]` 。
+
+## 0x04 注释和换行
+
+使用 `\` 做换行，使用 `;` 做注释。
+
+## 0x05 调用API
+
+在DOS时代，需要使用 `int 21h` 中断来执行系统调用，win32汇编中则可以直接调用系统提供接口来实现系统调用。
+
+在masm中，可以使用 `invoke 函数名,[参数1][,参数2]...` 来调用声明过的系统函数，并且会在编译时检查参数的个数是否正确。例如对 MessageBox 的调用，可以使用语句 `invoke MessageBox,NULL,offset szText,offset szCaption,MB_OK` 来实现。
+
+要想使用 `invoke` 语句，首先需要声明函数，需要使用 `函数名 proto [距离] [参数1]:数据类型,[参数2]:数据类型,...` 语句。
+
+当然，若每使用一个系统函数都需要声明一次的话就太麻烦了，所以可以使用 `include` 语句将一个包含所有函数声明的文件包含进来。 `includelib` 则包含的是库文件。
+
+## 0x06 标号
+
+标号的定义使用 `标号: 代码` 的方式定义，用于为跳转代码提供定位点。
+
+masm中提供了一种更为方便的标号方式。使用 `@@` 标号，然后可以用 `@B` 寻找前一个 `@@` 标号，使用 `@F` 寻找后一个 `@@` 标号。
+
+## 0x07 变量
+
+### 1>全局变量
+
+全局变量使用 `变量名 类型 初始值1，初始值2,... ` 或 `变量名 类型 重复数量 dup (初始值1,初始值2,...)`的方式定义例如：
+
+```
+.data
+wHour dw ?        ;1
+wMinute dw 10     ;2
+_hWind dd ?       ;3
+word_Buffer dw 100 dup (1,2)  ;4
+szBuffer byte 1024 dup (?)    ;5
+szText db 'Hello,world!'      ;6
+```
+
+例1定义了一个未初始化的word型变量wHour；例2定义了一个初始值为10的word型变量wMinute；例3定义了一个未赋值的double word 型变量_hWind；例4定义了一组字，以0001，0002，0001，0002...的顺序在内存中重复100次，共200个字；例5定义了1024个字的缓冲区；例6定义了一个字符串。
+
+### 2>局部变量
+
+局部变量使用 `local 变量名1[[重复数量]][:类型],变量名2[[重复数量]][:类型],...` 的方式定义，例如：
+
+```
+local local[1024]:byte  ;1024比特缓冲区
+local loc2              ;默认为dword类型
+local loc3:WNDCLASS     ;WNDCLASS类型变量
+```
+
+局部变量不能赋初值。
+
+### 3>使用方法
+
+比如对于 `szBuffer db 1024 dup (?)` 这样一个定义， 若使用语句 `mov ax,szBuffer` 是会报错的，因为ax是WORD大小，而szBuffer是BYTE大小。正确的用法是 `mov ax,word ptr szBuffer`。
+
+可以使用 `sizeof 变量名，数据类型或数据结构名` ， `lengthof 变量名，数据类型或数据结构名` 来获取变量长度或数量。
+
+`offset 变量名` 语句只能获取全局变量的地址。但有时我们需要在参数中使用某局部变量的地址，那么可以使用 `addr 变量名` 。 __ 值得一提的是addr这个伪指令会把变量名覆盖到eax上，由此可能会引发一些错误。 __
+
+## 0x08 数据结构
+
+也就是结构体了，用如下的方式声明：
+
+```
+结构名 struct
+
+字段1 类型 ?
+字段2 类型 ?
+...
+
+```
+
+例如：
+
+```
+WNDCLASS struct
+
+style DWORD ?
+lpfnWndProc DWORD ?
+...
+
+```
+
+而定义的方式如下:
+
+```
+stdWndClass WNDCLASS <>
+或
+stdWndClass WNDCLASS <1,1,1,1,1,1,1,1,1,1>
+```
+
+第一种方式未初始化，二第二种将数据都初始化为1。
+
+对于数据结构的使用有三种常用方法：
+
+### 1>
+
+直接引用：
+
+```
+mov eax,stdWndClass.lpfnWndProc
+```
+
+### 2>
+
+使用esi做存储指针:
+
+```
+mov ese,offset stWndClass
+mov eax,[esi + WNDCLASS.lpfnWndProc]
+```
+
+### 3>
+
+使用asume伪指令把寄存器预先定义成结构指针：
+
+```
+mov esi,offset stWndClass
+assume esi:ptr WNDCLASS
+mov eax,[esi].lpfnWndProc
+...
+assume esi:nothing
+```
+
+## 0x09 子程序
+
+子程序的定义方式如下：
+
+```
+子程序名 proc [距离] [语言类型] [可视区域] [USES 寄存器列表] [,参数:类型]...[VARARG] 
+        local 局部变量列表
+        
+        指令
+        
+子程序名 enddp
+```
+
+
+* 距离——因为声明了平坦模式所以不用写。
+* 语言类型——使用程序头部.modle的值。
+* 可视区域——可以是PRIVATE,PUBLIC和EXPORT。PRIVITE表示只对本模块可见，PUBLIC表示对全体可见，EXPORT表示是导出的函数。
+* USES寄存器列表——表示在子程序开始前自动push这些寄存器，在ret前pop回来。
+* 参数和类型——VARARG表示跟随个数不定的参数。
+
+## 0x0A 高级语法
+
+### >1 条件测试语句
+
+事实上基本与C语言的相同，但特别之处在于可以判断FALG寄存器的状态位置，例如：
+
+```
+(eax==ebx) && ZERO? ;判断eax是否等于ebx且ZERO位置位
+```
+
+这种表达式有：
+
+```
+CARRY?    表示CARRY位是否置位
+OVERFLOW? ...
+PARITY?
+SIGN?
+ZERO?
+```
+
+### 2> 分支语句
+
+```
+.if 条件表达式1
+    表达式1为真时执行的语句
+[.elseif 条件表达式2]
+    表达式2为真时执行的语句
+[.elseif 条件表达式3]
+    表达式3位真时执行的语句
+...
+[.else]
+    所有表达式为否时的执行语句
+.endif
+```
+
+### 3> 循环语句
+
+```
+.while 条件测试语句
+    指令
+    [.break [.if 退出条件]]
+    [.continue]
+.endw
+```
+
+或
+
+```
+.repeat
+    指令
+    [.break [.if 退出条件]]
+    [.continue]
+.until 条件测试表达式 (或.untilcxz [条件测试表达式])
+```
