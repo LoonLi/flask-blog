@@ -3,7 +3,7 @@ layout: post
 title:  "学校任务总结——python读取excel，图形化与打包"
 date:   2018-03-07 11:49:45 +0200
 categories: python
-published: false
+published: true
 ---
         这篇博客是对python读取excel，图形化与打包的一个小总结。
 
