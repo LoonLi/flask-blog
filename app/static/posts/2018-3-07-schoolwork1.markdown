@@ -9,7 +9,7 @@ published: true
 
 ## 0x00 程序介绍
 
-程序的代码在[这里](https://github.com/LoonLi/flask-blog)。程序本身并不复杂，功能就是先读取excel内容，然后根据ecxel内容对图片改名。其余就是做了一个图形化界面还有这里没有的打包操作。
+程序的代码在[这里](https://github.com/LoonLi/schoolwork1/blob/master/shoolwork.py)。程序本身并不复杂，功能就是先读取excel内容，然后根据ecxel内容对图片改名。其余就是做了一个图形化界面还有这里没有的打包操作。
 
 ## 0x01 操作excel
 
