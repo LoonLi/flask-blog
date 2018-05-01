@@ -3,7 +3,7 @@ layout: post
 title:  "学校任务总结——c#图形化"
 date:   2018-04-17 11:49:45 +0200
 categories: c#
-published: false
+published: true
 ---
         对之前做过的c#项目做一个总结。
 

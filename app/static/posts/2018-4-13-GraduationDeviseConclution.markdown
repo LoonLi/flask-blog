@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "学校任务总结——python读取excel，图形化与打包"
+title:  "Android中小学生素质管理系统教务管理系统App总结"
 date:   2018-04-12 11:49:45 +0200
 categories: java,android
 published: true
